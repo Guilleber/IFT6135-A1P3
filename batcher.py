@@ -224,73 +224,75 @@ import random
 class Batcher:
     def __init__(self, path_to_data, shuffle):
         self.path = path_to_data
-		self.classes = ['Cat', 'Dog']
-		self.i = 0
-		self.epoch = 0
-		self.shuffle = shuffle
+        self.classes = ['Cat', 'Dog']
+        self.i = 0
+        self.epoch = 0
+        self.shuffle = shuffle
 		
-		if self.shuffle:
-		    self.create_file_list()
+        if self.shuffle:
+            self.create_file_list()
 		
-	def create_file_list(self):
-	    list = []
-	    for cl in self.classes:
-		    list += os.listdir(self.path + cl + '/')
-		self.imlist = random.shuffle(list)
+    def create_file_list(self):
+        list = []
+        for cl in self.classes:
+            list += os.listdir(self.path + cl + '/')
+        self.imlist = random.shuffle(list)
 
 
     def next_batch(self, batch_size=32):
-	    input = []
-		target = []
-		if i == len(self.imlist):
-		    self.epoch += 1
-			self.i = 0
-			if self.shuffle:
-			    self.create_file_list()
+        input = []
+        target = []
+        if i == len(self.imlist):
+            self.epoch += 1
+            self.i = 0
+            if self.shuffle:
+                self.create_file_list()
         while batch_size > 0 & i != len(self.imlist):
-		    batch_size -= 1
-			im = imageio.imread(self.imlist[i])
-			label = self.classes.index(self.imlist[i].split('.')[-2])
-			i+=1
-			input.append(im)
-			output.append(label)
-		return (input, target)
+            batch_size -= 1
+            im = imageio.imread(self.imlist[i])
+            label = self.classes.index(self.imlist[i].split('.')[-2])
+            i+=1
+            input.append(np.transpose(im, (2, 0, 1)))
+            output.append(label)
+        return (input, target)
 		
 		
-	def next_test_batch(self, batch_size=32):
-	    input = []
-		if i == len(self.imlist):
-		    self.epoch += 1
-			self.i = 0
-			if self.shuffle:
-			    self.create_file_list()
+    def next_test_batch(self, batch_size=32):
+        input = []
+        if i == len(self.imlist):
+            self.epoch += 1
+            self.i = 0
+            if self.shuffle:
+                self.create_file_list()
         while batch_size > 0 & i != len(self.imlist):
-		    batch_size -= 1
-			im = imageio.imread(self.imlist[i])
-			i+=1
-			input.append(im)
-		return input
+            batch_size -= 1
+            im = imageio.imread(self.imlist[i])
+            i+=1
+            input.append(np.transpose(im, (2, 0, 1)))
+        return input
 
 
     def eval(self, eval_fct):
-	    self.epoch = 0
-		self.i = 0
-		sum_loss = 0
-		nb_loss = 0
-		while self.epoch == 0:
-		    batch = self.next_batch(32)
-			loss = eval_fct(batch)
-			sum_loss += loss
-			nb_loss += 1
-		return sum_loss/nb_loss
+        self.epoch = 0
+        self.i = 0
+        sum_loss = 0
+        sum_acc = 0
+        nb_loss = 0
+        while self.epoch == 0:
+            batch = self.next_batch(32)
+            loss, acc = eval_fct(batch)
+            sum_loss += loss
+            sum_acc += acc
+            nb_loss += 1
+        return sum_loss/nb_loss, sum_acc/nb_loss
 			
 		
-	def test(self, test_fct):
-		self.epoch = 0
-		self.i = 0
+    def test(self, test_fct):
+        self.epoch = 0
+        self.i = 0
         out_list = np.array([])
-		while epoch == 0:
-		    batch = self.next_test_batch(32)
-			out = test_fct(batch)
-			out_list = np.concatenate(out_list, out) #<---
-		return (self.imlist, out_list)
+        while epoch == 0:
+            batch = self.next_test_batch(32)
+            out = test_fct(batch)
+            out_list = np.concatenate(out_list, out) #<---
+        return (self.imlist, out_list)
