@@ -7,7 +7,7 @@ import numpy as np
 import torch as t
 from torch.optim import SGD
 import batcher
-import model
+import model as mdl
 import parameters
 
 def main():
@@ -15,15 +15,15 @@ def main():
     parser.add_argument('--epochs', type=int, default=10)
     parser.add_argument('--batch-size', type=int, default=32)
     parser.add_argument('--use-cuda', type=bool, default=False)
-    parser.add_argument('--model-name', default=model)
+    parser.add_argument('--model-name', default="model")
     
     args = parser.parse_args()
     params = parameters.params
     
-    train_batch_loader = batcher.Batcher("./data/train/")
-    valid_batch_loader = batcher.Batcher("./data/valid/")
+    train_batch_loader = batcher.Batcher("./Data/train/")
+    valid_batch_loader = batcher.Batcher("./Data/valid/")
     
-    model = model.ConvNet(params)
+    model = mdl.ConvNet(params)
     if args.use_cuda:
         model = model.cuda()
     
@@ -50,7 +50,7 @@ def main():
             iteration += 1
         current_epoch += 1
         t.save(model.state_dict(), "./models/" + args.model_name + "_e" + str(current_epoch) + ".model")
-        loss_valid, acc_valid = valid_batch_loader.eval(valid_step)
+        loss_valid, acc_valid = valid_batch_loader.eval(valid_step, use_cuda=args.use_cuda)
         tracking_valid_loss.append(loss_valid)
         print('\n')
         print("***VALIDATION***")
@@ -58,15 +58,16 @@ def main():
         print("****************")
         print('\n')
         if current_epoch >= 5:
-            if current_epoch >= 8:
+            """if current_epoch >= 8:
                 learning_rate = learning_rate/2
                 optimizer = SGD(model.parameters(), learning_rate)
                 train_step = model.trainer(optimizer)
-            else:
-                if tracking_valid_loss[-2] >= tracking_valid_loss[-1]:
-                    learning_rate = learning_rate/2
-                    optimizer = SGD(model.parameters(), learning_rate)
-                    train_step = model.trainer(optimizer)
+            else:"""
+            if tracking_valid_loss[-2] <= tracking_valid_loss[-1]:
+                learning_rate = learning_rate/2
+                optimizer = SGD(model.parameters(), learning_rate)
+                train_step = model.trainer(optimizer)
+                print("learning rate adapted to " + str(learning_rate))
     return
     
   
