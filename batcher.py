@@ -5,23 +5,28 @@ from os import listdir
 import random
 		
 class Batcher:
-    def __init__(self, path_to_data, shuffle=True):
+    def __init__(self, path_to_data, shuffle=True, test=False):
         self.path = path_to_data
         self.classes = ['Cat', 'Dog']
         self.i = 0
         self.epoch = 0
         self.shuffle = shuffle
+        self.test = test
 		
-        if self.shuffle:
-            self.create_file_list()
+        self.create_file_list()
         return
 		
     def create_file_list(self):
         list = []
-        for cl in self.classes:
-            list_cl = listdir(self.path + cl + '/')
-            list += [self.path + cl + '/' + el for el in list_cl]
-        random.shuffle(list)
+        if not(test):
+            for cl in self.classes:
+                list_cl = listdir(self.path + cl + '/')
+                list += [self.path + cl + '/' + el for el in list_cl]
+        else:
+            list_cl = listdir(self.path)
+            list += [self.path + '/' + el for el in list_cl]
+        if self.shuffle:
+            random.shuffle(list)
         self.imlist = list
         return
 
@@ -32,7 +37,7 @@ class Batcher:
         while batch_size > 0 and self.i != len(self.imlist):
             batch_size -= 1
             im = imageio.imread(self.imlist[self.i])
-            label = self.classes.index(self.imlist[self.i].split('.')[-2])
+            label = self.classes.index(self.imlist[self.i].split('.')[2])
             self.i+=1
             if im.ndim == 2:
                 im = np.repeat(np.expand_dims(im, axis=2), 3, axis=2)
@@ -41,8 +46,7 @@ class Batcher:
         if self.i == len(self.imlist):
             self.epoch += 1
             self.i = 0
-            if self.shuffle:
-                self.create_file_list()
+            self.create_file_list()
         return np.array(input), np.array(target)
 		
 		
@@ -57,8 +61,6 @@ class Batcher:
         if self.i == len(self.imlist):
             self.epoch += 1
             self.i = 0
-            if self.shuffle:
-                self.create_file_list()
         return np.array(input)
 
 
