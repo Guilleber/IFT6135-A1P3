@@ -3,6 +3,8 @@ import math
 import torch as t
 import torch.nn as nn
 import torch.nn.functional as F
+from Modules.dropout import Dropout
+from Modules.batchnorm import BatchNorm
 
 
 class ConvNet(nn.Module):
@@ -29,6 +31,8 @@ class ConvNet(nn.Module):
             Pool = nn.MaxPool2d((self.params["pool_kernel_size"][i], self.params["pool_kernel_size"][i]))
 			#-----------------pool_kernel_stride??????
             self.Pools.append(Pool)
+            
+        self.BatchNs = nn.ModuleList()
 
 		#with convolution and pooling, it is not easy to control the size of an output
 		#to create a final outlayer in 1D, it is easier to use a simple linear transformation (fully connected layer)
@@ -37,11 +41,15 @@ class ConvNet(nn.Module):
         H = self.params["H_in"]
         for i in range(self.params["nb_conv_layers"]):
             W = out_dim_conv(W, self.params["padding"][i], 1, self.params["kernel_size"][i], self.params["stride"][i])
-            W = out_dim_pool(W, self.params["pool_kernel_size"][i])
             H = out_dim_conv(H, self.params["padding"][i], 1, self.params["kernel_size"][i], self.params["stride"][i])
+            BatchN = BatchNorm((self.params["channel_out"][i], H, W))
+            self.BatchNs.append(BatchN)
+            W = out_dim_pool(W, self.params["pool_kernel_size"][i])
             H = out_dim_pool(H, self.params["pool_kernel_size"][i])
 
         self.OutLayer = nn.Linear(H*W*self.params["channel_out"][-1], 2)
+        self.Dropout = Dropout(p=0.1)
+        return
 
 
     def forward(self, input_batch):
@@ -53,8 +61,9 @@ class ConvNet(nn.Module):
         for i in range(self.params["nb_conv_layers"]):
 
 			#we apply a Relu activation to each convolutional layer
-            input_batch = F.relu(self.Convs[i](input_batch))
+            input_batch = F.relu(self.BatchNs[i](self.Convs[i](input_batch)))
             input_batch = self.Pools[i](input_batch)
+            input_batch = self.Dropout(input_batch)
         output_preac_batch = self.OutLayer(input_batch.contiguous().view(batch_size, -1))
         return output_preac_batch
 
@@ -63,7 +72,7 @@ class ConvNet(nn.Module):
         def train_step(batch, use_cuda=False):
 
 			#we must set the mode to train (some layers can behave diffrent on the train and test procedures)
-			self.train()
+            self.train()
 
 			#as the forward function computes output Tensors from input Tensors,we should transform numpy arrays to PyTorch tensors
 			#Tensors can keep track of a computational graph and gradients
@@ -72,14 +81,14 @@ class ConvNet(nn.Module):
             input_batch = batch[0]
             target_batch = batch[1]
             if use_cuda:
-                input_batch = (t.from_numpy(input_batch)).float().cuda()
-                target_batch = (t.from_numpy(target_batch)).long().cuda()
+                input_batch = t.from_numpy(input_batch).float().cuda()
+                target_batch = t.from_numpy(target_batch).long().cuda()
             else:
-                input_batch = (t.from_numpy(input_batch)).float()
-                target_batch = (t.from_numpy(target_batch)).long()
+                input_batch = t.from_numpy(input_batch).float()
+                target_batch = t.from_numpy(target_batch).long()
 
 			#the gradients of all optimized torch.Tensors must be cleared before getting new values
-			optimizer.zero_grad()
+            optimizer.zero_grad()
 
 			#final out preactivation returned by Convnet.forward function
             output_preac_batch = self(input_batch)
@@ -88,7 +97,7 @@ class ConvNet(nn.Module):
             loss = F.cross_entropy(output_preac_batch, target_batch)
 
 			#calculating gradients
-			loss.backward()
+            loss.backward()
 
 			#updating the parameters thranks to the gradients
             optimizer.step()
@@ -104,11 +113,11 @@ class ConvNet(nn.Module):
             input_batch = batch[0]
             target_batch = batch[1]
             if use_cuda:
-                input_batch = (t.from_numpy(input_batch)).float().cuda()
-                target_batch = (t.from_numpy(target_batch)).long().cuda()
+                input_batch = t.from_numpy(input_batch).float().cuda()
+                target_batch = t.from_numpy(target_batch).long().cuda()
             else:
-                input_batch = (t.from_numpy(input_batch)).float()
-                target_batch = (t.from_numpy(target_batch)).long()
+                input_batch = t.from_numpy(input_batch).float()
+                target_batch = t.from_numpy(target_batch).long()
             output_preac_batch = self(input_batch)
             loss = F.cross_entropy(output_preac_batch, target_batch)
             pred = [int(np.argmax(output_preac)) for output_preac in output_preac_batch.data.cpu().numpy()]
@@ -122,11 +131,11 @@ class ConvNet(nn.Module):
     def tester(self):
         def test_step(batch, use_cuda=False):
             self.eval()
-            input_batch = batch[0]
+            input_batch = batch
             if use_cuda:
-                input_batch = (t.from_numpy(input_batch)).float().cuda()
+                input_batch = t.from_numpy(input_batch).float().cuda()
             else:
-                input_batch = (t.from_numpy(input_batch)).float()
+                input_batch = t.from_numpy(input_batch).float()
             output_preac_batch = self(input_batch)
             pred = [int(np.argmax(output_preac)) for output_preac in output_preac_batch.data.cpu().numpy()]
 
