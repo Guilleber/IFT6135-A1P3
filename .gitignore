@@ -1,5 +1,4 @@
-Data/
-Models/
-Results/
+Data/*.jpg
+Models/*.model
 *.pyc
 *.zip
