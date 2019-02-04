@@ -47,8 +47,10 @@ class ConvNet(nn.Module):
             W = out_dim_pool(W, self.params["pool_kernel_size"][i])
             H = out_dim_pool(H, self.params["pool_kernel_size"][i])
 
-        self.OutLayer = nn.Linear(H*W*self.params["channel_out"][-1], 2)
-        self.Dropout = Dropout(p=0.1)
+        self.OutLayer1 = nn.Linear(H*W*self.params["channel_out"][-1], 256)
+        self.OutLayer2 = nn.Linear(256, 256)
+        self.OutLayer3 = nn.Linear(256, 2)
+        self.Dropout = Dropout(p=0.0)
         return
 
 
@@ -61,10 +63,10 @@ class ConvNet(nn.Module):
         for i in range(self.params["nb_conv_layers"]):
 
 			#we apply a Relu activation to each convolutional layer
-            input_batch = F.relu(self.BatchNs[i](self.Convs[i](input_batch)))
+            input_batch = F.relu(self.Convs[i](input_batch))
             input_batch = self.Pools[i](input_batch)
-            input_batch = self.Dropout(input_batch)
-        output_preac_batch = self.OutLayer(input_batch.contiguous().view(batch_size, -1))
+            #input_batch = self.Dropout(input_batch)
+        output_preac_batch = self.OutLayer3(self.Dropout(F.relu(self.OutLayer2(self.Dropout(F.relu(self.OutLayer1(input_batch.contiguous().view(batch_size, -1))))))))
         return output_preac_batch
 
 
