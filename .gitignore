@@ -1,4 +1,5 @@
-Data/*.jpg
-Models/*.model
+Data/
+Models/
 *.pyc
 *.zip
+*.jpg
