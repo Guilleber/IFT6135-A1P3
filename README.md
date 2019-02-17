@@ -4,7 +4,7 @@
 
 This project was made as an assignment for the class IFT6135 at University of Montreal. This is an application of convolutional neural networks to image classification (Cat vs Dog). This project have been realised in collaboration with 3 other students.
 
-Hyper-parameters have been tuned using local random search arround some initial working parameters. These initial parameters are inspired from https://www.quora.com/What-is-the-VGG-neural-network. Tuned parameters are the number of convolutional layers, the kernel size, the size of output linear layers and the learning rate.
+Hyper-parameters have been tuned using local random search arround some initial working parameters. These initial parameters are inspired from https://www.quora.com/What-is-the-VGG-neural-network. Tuned parameters are the number of convolutional layers, the kernel size, the size of output linear layers, the number of channels and the learning rate.
 
 Our model best hyper-parameters are stored in the "parameters.py" file and will be used as the default configuration of the model.
 
