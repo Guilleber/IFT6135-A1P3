@@ -43,7 +43,7 @@ python3 train.py
 
 Other parameters are:
 - --use-cuda (default: False)
-- --epochs (default: 10)
+- --epochs (default: 8)
 - --batch-size (default: 32)
 - --model-name (default: model)
 
