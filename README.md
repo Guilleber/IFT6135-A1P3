@@ -23,10 +23,10 @@ We applied a data augmentation technic to improve the results of our network. To
 - Random crop from 60% to 100% of the image size and resize
 
 To apply our data augmentation method, please run the following commands:
-'''bash
+```bash
 python3 augment.py ./Data/train/Cat/
 python3 augment.py ./Data/train/Dog/
-'''
+```
 
 ## Train & Test
 
