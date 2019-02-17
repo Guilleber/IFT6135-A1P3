@@ -46,7 +46,7 @@ Other parameters are:
 - --batch-size (default: 32)
 - --model-name (default: model)
 
-The script will display random batches scores during training as well as validation results at the end of each epoch. A new model parameters file will be create inside "Models/".
+The script will display random batches scores during training as well as validation results at the end of each epoch. A new model parameters file will be create inside "Models/". "train.py" will also plot the loss and accuracy curves at the end of the training.
 
 ```bash
 python3 test.py --model Models/<model_name>_acc<accuracy>_e<epoch>.model
