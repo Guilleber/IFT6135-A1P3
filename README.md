@@ -10,7 +10,7 @@ Our model best hyper-parameters are stored in the "parameters.py" file and will 
 
 ## Install & prerequisites
 
-To setup the project, please download the source code and create two additional folders "Models/" and "Data/". "Models/" will contain the model's parameters file once the training is completed. "Data/" should contain three sub-folders "train/", "valid/" and "test/" each one containing the corresponding dataset part splitted in two "Cat/" and "Dog/" folders.
+To setup the project, please download the source code and create two additional folders "Models/" and "Data/". "Models/" will contain the model's parameters file once the training is completed. "Data/" should contain three sub-folders "train/", "valid/" and "test/" each one containing the corresponding dataset part splitted (except "test/") in two "Cat/" and "Dog/" folders. Images' names should be <Dog/Cat>.<number>.jpg for "train/" and "valid/" and <number>.jpg for "test/"
 
 The following instructions must be executed using Python 3 (tested on Python 3.6.2) with the following libraries:
 - Pytorch 1.0 (other versions may not work)
@@ -47,9 +47,11 @@ Other parameters are:
 The script will display random batches scores during training as well as validation results at the end of each epoch. A new model parameters file will be create inside "Models/".
 
 ```bash
-python3 test.py --model Models/<model_name>\_acc<accuracy>\_e<epoch>.model
+python3 test.py --model Models/<model_name>_acc<accuracy>_e<epoch>.model
 ```
 
 Other parameters are:
 - --use-cuda (dafault: False)
 - --batch-size (default: 32)
+
+"test.py" will create a new "Results/current_result.csv" file containing the classes for the images in "test/".
