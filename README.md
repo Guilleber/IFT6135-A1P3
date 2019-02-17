@@ -20,7 +20,7 @@ The following instructions must be executed using Python 3 (tested on Python 3.6
 - argparse
 - csv
 
-We applied a data augmentation technic to improve the results of our network. To do this we apply different random transformations to the images among:
+We applied a data augmentation technique to improve the results of our network. To do this we apply different random transformations to the images among:
 - Vertical flip
 - Random rotation from -30° to 30°
 - Grayscale
