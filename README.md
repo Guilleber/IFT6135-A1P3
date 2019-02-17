@@ -25,6 +25,7 @@ We applied a data augmentation technique to improve the results of our network. 
 - Random rotation from -30° to 30°
 - Grayscale
 - Random crop from 60% to 100% of the image size and resize
+We create that way 7 new images for each image in our train dataset, thus multiplying by 8 the size of the dataset.
 
 To apply our data augmentation method, please run the following commands:
 ```bash
