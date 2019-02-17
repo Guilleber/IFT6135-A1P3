@@ -1,4 +1,4 @@
-# IFT6135-Assignment1-Question3
+# IFT6135-Assignment1-Part3
 
 ## Introduction
 
