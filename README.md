@@ -4,7 +4,7 @@
 
 This project was made as an assignment for the class IFT6135 at University of Montreal. This is an application of convolutional neural networks to image classification (Cat vs Dog). This project have been realised in collaboration with 3 other students.
 
-Hyper-parameters have been tuned using local random search arround some initial working parameters. These initial parameters are inspired from https://www.quora.com/What-is-the-VGG-neural-network. Tuned parameters are the number of convolutional layers, the kernel size, the size of output linear layers and the learning rate.
+Hyper-parameters have been tuned using local random search arround some initial working parameters. These initial parameters are inspired from https://www.quora.com/What-is-the-VGG-neural-network. Tuned parameters are the number of convolutional layers, the kernel size, the size of output linear layers, the number of channels and the learning rate.
 
 Our model best hyper-parameters are stored in the "parameters.py" file and will be used as the default configuration of the model.
 
@@ -20,11 +20,12 @@ The following instructions must be executed using Python 3 (tested on Python 3.6
 - argparse
 - csv
 
-We applied a data augmentation technic to improve the results of our network. To do this we apply different random transformations to the images among:
+We applied a data augmentation technique to improve the results of our network. To do this we apply different random transformations to the images among:
 - Vertical flip
 - Random rotation from -30° to 30°
 - Grayscale
 - Random crop from 60% to 100% of the image size and resize
+We create that way 7 new images for each image in our train dataset, thus multiplying by 8 the size of the dataset.
 
 To apply our data augmentation method, please run the following commands:
 ```bash
@@ -42,7 +43,7 @@ python3 train.py
 
 Other parameters are:
 - --use-cuda (default: False)
-- --epochs (default: 10)
+- --epochs (default: 8)
 - --batch-size (default: 32)
 - --model-name (default: model)
 
