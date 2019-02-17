@@ -14,7 +14,7 @@ def main():
     parser = argparse.ArgumentParser(description='IFT6135')
     parser.add_argument('--batch-size', type=int, default=32)
     parser.add_argument('--use-cuda', type=bool, default=False)
-    parser.add_argument('--model', default="model")
+    parser.add_argument('--model', default=None)
 
     args = parser.parse_args()
     params = parameters.params
@@ -29,13 +29,11 @@ def main():
     test_step = model.tester()
     img, pred = test_batch_loader.test(test_step, use_cuda=args.use_cuda)
 
-    with open('./Results/sample_submission.csv', mode='w') as csv_file:
+    with open('./Results/current_result.csv', mode='w') as csv_file:
         csv_file.write("id,label\n")
         for i in range(len(img)):
             csv_file.write(img[i].split('/')[-1][:-4] + ',' + test_batch_loader.classes[pred[i]] + '\n')
         csv_file.close()
-
-
 
     return
 

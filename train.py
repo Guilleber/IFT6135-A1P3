@@ -9,17 +9,9 @@ from torch.optim import SGD
 import batcher
 import model as mdl
 import parameters
+import matplotlib.pyplot as plt
 
-def main():
-    parser = argparse.ArgumentParser(description='IFT6135')
-    parser.add_argument('--epochs', type=int, default=10)
-    parser.add_argument('--batch-size', type=int, default=32)
-    parser.add_argument('--use-cuda', type=bool, default=False)
-    parser.add_argument('--model-name', default="model")
-
-    args = parser.parse_args()
-    params = parameters.params
-
+def main(args, params, valid_acc_thresh=0):
     train_batch_loader = batcher.Batcher("./Data/train/")
     valid_batch_loader = batcher.Batcher("./Data/valid/")
 
@@ -34,7 +26,9 @@ def main():
     valid_step = model.validator()
 
     tracking_valid_loss = []
+    tracking_valid_acc = []
     tracking_train_loss = []
+    tracking_train_loss_epoch = []
     current_epoch = 0
 
     while current_epoch < args.epochs:
@@ -51,15 +45,19 @@ def main():
                 _ = train_step(batch, use_cuda=args.use_cuda)
             iteration += 1
         current_epoch += 1
-        t.save(model.state_dict(), "./models/" + args.model_name + "_e" + str(current_epoch) + ".model")
         loss_valid, acc_valid = valid_batch_loader.eval(valid_step, use_cuda=args.use_cuda)
         tracking_valid_loss.append(loss_valid)
+        tracking_valid_acc.append(acc_valid)
+        tracking_train_loss_epoch.append(sum(tracking_train_loss)/float(len(tracking_train_loss)))
+        tracking_train_loss = []
         print('\n')
         print("***VALIDATION***")
         print("Epoch: " + str(current_epoch) + ", Loss: " + str(loss_valid) + ", Acc: " + str(acc_valid))
         print("****************")
         print('\n')
-        if current_epoch >= 5:
+        if tracking_valid_acc[-1] < valid_acc_thresh:
+            break
+        if current_epoch >= 3:
             """if current_epoch >= 8:
                 learning_rate = learning_rate/2
                 optimizer = SGD(model.parameters(), learning_rate)
@@ -70,8 +68,26 @@ def main():
                 optimizer = SGD(model.parameters(), learning_rate)
                 train_step = model.trainer(optimizer)
                 print("learning rate adapted to " + str(learning_rate))
-    return
+    t.save(model.state_dict(), "./models/" + args.model_name + "_acc" + str(tracking_valid_acc[-1]) + "_e" + str(current_epoch) + ".model")
+    plt.plot(range(len(tracking_train_loss_epoch)), tracking_train_loss_epoch, label="train")
+    plt.plot(range(len(tracking_train_loss_epoch)), tracking_valid_loss, label="valid")
+    plt.xlabel("epoch")
+    plt.ylabel("loss")
+    plt.show()
+    plt.plot(range(len(tracking_train_loss_epoch)), tracking_valid_acc, label="valid")
+    plt.xlabel("epoch")
+    plt.ylabel("accuracy")
+    
+    return tracking_valid_loss[-1], tracking_valid_acc[-1]
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description='IFT6135')
+    parser.add_argument('--epochs', type=int, default=10)
+    parser.add_argument('--batch-size', type=int, default=32)
+    parser.add_argument('--use-cuda', type=bool, default=False)
+    parser.add_argument('--model-name', default="model")
+
+    args = parser.parse_args()
+    params = parameters.params
+    _, _ = main(args, params)

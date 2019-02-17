@@ -15,12 +15,12 @@ def main():
     
     args = parser.parse_args()
     imlist = listdir(args.dir)
-    new_images = 3
+    new_images = 7
     transform = torchvision.transforms.Compose([
         torchvision.transforms.RandomGrayscale(p=0.1),
-        torchvision.transforms.RandomHorizontalFlip(p=0.66),
-        torchvision.transforms.RandomRotation(degrees=10),
-        torchvision.transforms.RandomResizedCrop(64, scale=(0.7,1.0))
+        torchvision.transforms.RandomHorizontalFlip(p=4.0/7.0),
+        torchvision.transforms.RandomRotation(degrees=30),
+        torchvision.transforms.RandomResizedCrop(64, scale=(0.6,1.0))
     ])
     
     for imname in imlist:
