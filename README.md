@@ -17,6 +17,8 @@ The following instructions must be executed using Python 3 (tested on Python 3.6
 - Numpy
 - ImageIO
 - Pillow
+- argparse
+- csv
 
 We applied a data augmentation technic to improve the results of our network. To do this we apply different random transformations to the images among:
 - Vertical flip
