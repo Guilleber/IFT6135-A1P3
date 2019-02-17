@@ -4,7 +4,9 @@
 
 This project was made as an assignment for the class IFT6135 at University of Montreal. This is an application of convolutional neural networks to image classification (Cat vs Dog). This project have been realised in collaboration with 3 other students of the same class.
 
-Hyper-parameters have been tuned using local random search arround some initial working parameters. These initial parameters are inspired from https://www.quora.com/What-is-the-VGG-neural-network .
+Hyper-parameters have been tuned using local random search arround some initial working parameters. These initial parameters are inspired from https://www.quora.com/What-is-the-VGG-neural-network. Tuned parameters are the number of convolutional layers, the kernel size, the size of output linear layers and the learning rate.
+
+Our model best hyper-parameters are stored in the "parameters.py" file and will be used as the default configuration of the model.
 
 ## Install & prerequisites
 
@@ -30,14 +32,24 @@ python3 augment.py ./Data/train/Dog/
 
 ## Train & Test
 
-parameters.py
+To train the model, please run the following command:
 
+```bash
 python3 train.py
---use-cuda
---epochs
---batch-size
---model-name
+```
 
-python3 test.py --model Models/<model_name>_e<epoch>.model
---use-cuda
---batch-size
+Other parameters are:
+- --use-cuda (default: False)
+- --epochs (default: 10)
+- --batch-size (default: 32)
+- --model-name (default: model)
+
+The script will display random batches scores during training as well as validation results at the end of each epoch. A new model parameters file will be create inside "Models/".
+
+```bash
+python3 test.py --model Models/<model_name>\_acc<accuracy>\_e<epoch>.model
+```
+
+Other parameters are:
+- --use-cuda (dafault: False)
+- --batch-size (default: 32)
