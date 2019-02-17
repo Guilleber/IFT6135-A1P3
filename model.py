@@ -103,9 +103,12 @@ class ConvNet(nn.Module):
 
 			#updating the parameters thranks to the gradients
             optimizer.step()
+            
+            pred = [int(np.argmax(output_preac)) for output_preac in output_preac_batch.data.cpu().numpy()]
+            acc = sum([1 if target_batch[i] == pred[i] else 0 for i in range(len(pred))])/len(pred)
 
 			#to get the loss data we should move it to cpu
-            return float(loss.data.cpu().numpy())
+            return float(loss.data.cpu().numpy()), acc
         return train_step
 
 

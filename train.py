@@ -29,6 +29,8 @@ def main(args, params, valid_acc_thresh=0):
     tracking_valid_acc = []
     tracking_train_loss = []
     tracking_train_loss_epoch = []
+    tracking_train_acc = []
+    tracking_train_acc_epoch = []
     current_epoch = 0
 
     while current_epoch < args.epochs:
@@ -38,11 +40,14 @@ def main(args, params, valid_acc_thresh=0):
 
             #we print the result each 50 exemple
             if iteration%50 == 0:
-                loss = train_step(batch, use_cuda=args.use_cuda)
+                loss, acc = train_step(batch, use_cuda=args.use_cuda)
                 tracking_train_loss.append(loss)
+                tracking_train_acc.append(acc)
                 print("Epoch: " + str(current_epoch + 1) + ", It: " + str(iteration + 1) + ", Loss: " + str(loss))
             else:
-                _ = train_step(batch, use_cuda=args.use_cuda)
+                loss, acc = train_step(batch, use_cuda=args.use_cuda)
+                tracking_train_loss.append(loss)
+                tracking_train_acc.append(acc)
             iteration += 1
         current_epoch += 1
         loss_valid, acc_valid = valid_batch_loader.eval(valid_step, use_cuda=args.use_cuda)
@@ -50,6 +55,8 @@ def main(args, params, valid_acc_thresh=0):
         tracking_valid_acc.append(acc_valid)
         tracking_train_loss_epoch.append(sum(tracking_train_loss)/float(len(tracking_train_loss)))
         tracking_train_loss = []
+        tracking_train_acc_epoch.append(sum(tracking_train_acc)/float(len(tracking_train_acc)))
+        tracking_train_acc = []
         print('\n')
         print("***VALIDATION***")
         print("Epoch: " + str(current_epoch) + ", Loss: " + str(loss_valid) + ", Acc: " + str(acc_valid))
@@ -74,16 +81,18 @@ def main(args, params, valid_acc_thresh=0):
     plt.xlabel("epoch")
     plt.ylabel("loss")
     plt.show()
+    plt.plot(range(len(tracking_train_loss_epoch)), tracking_train_acc_epoch, label="train")
     plt.plot(range(len(tracking_train_loss_epoch)), tracking_valid_acc, label="valid")
     plt.xlabel("epoch")
     plt.ylabel("accuracy")
+    plt.show()
     
     return tracking_valid_loss[-1], tracking_valid_acc[-1]
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='IFT6135')
-    parser.add_argument('--epochs', type=int, default=10)
+    parser.add_argument('--epochs', type=int, default=8)
     parser.add_argument('--batch-size', type=int, default=32)
     parser.add_argument('--use-cuda', type=bool, default=False)
     parser.add_argument('--model-name', default="model")
