@@ -46,11 +46,11 @@ class RNN(nn.Module):
         self.by = np.random.rand(self.vocab_size)*np.sqrt(1/self.vocab_size)
  
 
-def generate(rnn, seed_ix, n):
+def generate(rnn, hprev, seed_ix, n):           #hprev = h(t=0) devrait etre apris
     xg = np.zeros((vocab_size, 1))
     xg[seed_ix] = 1
     ixes = []
-    hg = np.zeros((rnn.num_layers - 1, rnn.vocab_size))
+    hg = hprev            #Dimension = (rnn.num_layers - 1, rnn.vocab_size)
     for t in range(n):
         hg[0,:] = np.tanh(np.dot(rnn.Wx, xg) + np.dot(rnn.Wh[0,:,:], hg[0,:]) + rnn.bh[0,:]) 
         for j in range(1, rnn.num_layers):
